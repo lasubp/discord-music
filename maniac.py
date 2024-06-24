@@ -23,7 +23,6 @@ intents.message_content = True
 
 # Create the bot instance
 bot = commands.Bot(command_prefix='!', intents=intents)
-bot.tree = app_commands.CommandTree(bot)
 
 # Define yt-dlp options
 yt_dl_options = {
@@ -60,6 +59,8 @@ async def play(interaction: discord.Interaction, url: str):
         voice_client = voice_clients[guild_id]
         await voice_client.move_to(channel)
 
+    await interaction.response.defer()  # Defer the response to give the bot more time to process
+
     try:
         loop = asyncio.get_event_loop()
         data = await loop.run_in_executor(None, lambda: ytdl.extract_info(url, download=False))
@@ -76,10 +77,10 @@ async def play(interaction: discord.Interaction, url: str):
 
         player = discord.FFmpegPCMAudio(song, **ffmpeg_options)
         voice_client.play(player, after=after_playing)
-        await interaction.response.send_message(f"Now playing: {data['title']}")
+        await interaction.followup.send(f"Now playing: {data['title']}")
     except Exception as e:
         print(e)
-        await interaction.response.send_message("An error occurred while trying to play the audio.")
+        await interaction.followup.send("An error occurred while trying to play the audio.")
 
 @bot.tree.command(name="pause", description="Pause the current song")
 async def pause(interaction: discord.Interaction):
