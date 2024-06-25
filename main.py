@@ -10,7 +10,7 @@ from dotenv import load_dotenv
 load_dotenv()
 
 # Get the bot token from environment variables
-TOKEN = os.getenv('discord_token')
+TOKEN = os.getenv('DISCORD-TOKEN')
 
 # Ensure the token is valid
 if TOKEN is None:
