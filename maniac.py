@@ -128,15 +128,16 @@ async def resume(interaction: discord.Interaction):
 
 @bot.tree.command(name="stop", description="Stop the current song and disconnect")
 async def stop(interaction: discord.Interaction):
+    await interaction.response.defer()
     try:
         voice_clients[interaction.guild.id].stop()
         await voice_clients[interaction.guild.id].disconnect()
         voice_clients[interaction.guild.id] = None
         queues[interaction.guild.id] = []
-        await interaction.response.send_message("Stopped the song and disconnected.")
+        await interaction.followup.send("Stopped the song and disconnected.")
     except Exception as e:
         print(e)
-        await interaction.response.send_message("An error occurred while trying to stop the audio.")
+        await interaction.followup.send("An error occurred while trying to stop the audio.")
 
 # Run the bot
 bot.run(TOKEN)
