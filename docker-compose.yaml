@@ -1,0 +1,8 @@
+services:
+  discord-music-box:
+    image: discord-music-bot:4
+    container_name: discord-music-box
+    volumes:
+      - ./:/app/
+    # environment:
+    #   - DISCORD-TOKEN = ${DISCORD-TOKEN}
