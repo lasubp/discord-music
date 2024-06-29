@@ -10,7 +10,7 @@ from dotenv import load_dotenv
 load_dotenv()
 
 # Get the bot token from environment variables
-TOKEN = os.getenv('DISCORD-TOKEN')
+TOKEN = os.getenv('DISCORD_TOKEN')
 
 # Ensure the token is valid
 if TOKEN is None:
@@ -61,7 +61,7 @@ async def play(interaction: discord.Interaction, url: str):
         voice_client = voice_clients[guild_id]
         await voice_client.move_to(channel)
 
-    await interaction.response.defer()  # Defer the response to give the bot more time to process
+    await interaction.response.defer(thinking=True)  # Defer the response to give the bot more time to process
 
     try:
         loop = asyncio.get_event_loop()
@@ -90,17 +90,13 @@ async def play_song(interaction, voice_client, song, guild_id):
             print(e)
 
     voice_client.play(player, after=after_playing)
-    if interaction:
-        await interaction.followup.send(f"Now playing: {song['title']}")
+    await interaction.followup.send(f"Now playing: {song['title']}")
 
 async def play_next_song(guild_id, voice_client, interaction):
     if guild_id in queues and queues[guild_id]:
         next_entry = queues[guild_id].pop(0)
         if isinstance(next_entry, dict):
-            url = next_entry['url']
-            loop = asyncio.get_event_loop()
-            data = await loop.run_in_executor(None, lambda: ytdl.extract_info(url, download=False))
-            await play_song(interaction, voice_client, data, guild_id)
+            await play_song(interaction, voice_client, next_entry, guild_id)
         else:
             await voice_client.disconnect()
             del voice_clients[guild_id]
@@ -128,7 +124,7 @@ async def resume(interaction: discord.Interaction):
 
 @bot.tree.command(name="stop", description="Stop the current song and disconnect")
 async def stop(interaction: discord.Interaction):
-    await interaction.response.defer()
+    await interaction.response.defer(thinking=True)
     try:
         voice_clients[interaction.guild.id].stop()
         await voice_clients[interaction.guild.id].disconnect()
